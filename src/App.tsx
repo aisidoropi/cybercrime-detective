@@ -2,6 +2,7 @@ import { useState, useCallback } from 'react';
 import type { GameScreen, GameState, Clue, LevelProgress } from './types/game';
 import { LEVELS, getLevelById } from './data/levels';
 import TitleScreen from './components/TitleScreen';
+import DetectiveSelect from './components/DetectiveSelect';
 import Scene from './components/Scene';
 import EvidenceBoard from './components/EvidenceBoard';
 import Handbook from './components/Handbook';
@@ -19,6 +20,7 @@ const initialState = (): GameState => ({
   handbookUnlocked: [],
   navigationStack: [],
   savedProgress: {},
+  selectedDetective: null,
 });
 
 export default function App() {
@@ -162,6 +164,19 @@ export default function App() {
     });
   }, []);
 
+  // Select a detective
+  const selectDetective = useCallback((detective: { id: string; name: string; accentColor: string }) => {
+    setState((s) => ({
+      ...s,
+      selectedDetective: detective,
+      screen: 'case-select',
+      navigationStack: [
+        ...s.navigationStack,
+        { screen: s.screen },
+      ],
+    }));
+  }, []);
+
   const handleClueDiscovered = useCallback((clue: Clue) => {
     setState((s) => {
       if (s.discoveredClues.includes(clue.id)) return s;
@@ -200,12 +215,19 @@ export default function App() {
       {/* Screen transitions */}
       <ScreenLayer active={state.screen === 'title'}>
         <TitleScreen
-          onNewGame={() => navigateTo('case-select')}
+          onNewGame={() => navigateTo('detective-select')}
           onCaseSelect={() => navigateTo('case-select')}
           onHandbook={() => {
             setState((s) => ({ ...s, currentLevel: 1 }));
             setOverlay('handbook');
           }}
+          onBack={canGoBack ? goBack : undefined}
+        />
+      </ScreenLayer>
+
+      <ScreenLayer active={state.screen === 'detective-select'}>
+        <DetectiveSelect
+          onSelect={selectDetective}
           onBack={canGoBack ? goBack : undefined}
         />
       </ScreenLayer>
@@ -229,6 +251,7 @@ export default function App() {
           onAccuse={() => navigateTo('accusation')}
           onBack={canGoBack ? goBack : undefined}
           onCloseOverlay={() => setOverlay(null)}
+          detectiveName={state.selectedDetective?.name}
         />
         {overlay === 'board' && (
           <EvidenceBoard
@@ -258,6 +281,7 @@ export default function App() {
           onAccuse={() => {}}
           onBack={canGoBack ? goBack : undefined}
           onCloseOverlay={() => setOverlay(null)}
+          detectiveName={state.selectedDetective?.name}
         />
         {overlay === 'board' && (
           <EvidenceBoard

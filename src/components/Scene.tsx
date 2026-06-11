@@ -12,9 +12,10 @@ interface Props {
   onAccuse: () => void;
   onBack?: () => void;
   onCloseOverlay?: () => void;
+  detectiveName?: string | null;
 }
 
-export default function Scene({ level, discoveredClues, onClueDiscovered, onOpenBoard, onOpenHandbook, onAccuse, onBack, onCloseOverlay }: Props) {
+export default function Scene({ level, discoveredClues, onClueDiscovered, onOpenBoard, onOpenHandbook, onAccuse, onBack, onCloseOverlay, detectiveName }: Props) {
   const [activeClue, setActiveClue] = useState<Clue | null>(null);
   const [zoomed, setZoomed] = useState(false);
   const [showHint, setShowHint] = useState(true);
@@ -98,6 +99,7 @@ export default function Scene({ level, discoveredClues, onClueDiscovered, onOpen
         onCloseOverlay={onCloseOverlay}
         showHint={showHint}
         newPin={newPin}
+        detectiveName={detectiveName}
       />
 
       {/* Clue inspection card */}
@@ -169,7 +171,7 @@ function Hotspot({ clue, discovered, onClick }: { clue: Clue; discovered: boolea
 }
 
 function HUD({
-  level, found, required, onOpenBoard, onOpenHandbook, onAccuse, onBack, onCloseOverlay, showHint, newPin,
+  level, found, required, onOpenBoard, onOpenHandbook, onAccuse, onBack, onCloseOverlay, showHint, newPin, detectiveName,
 }: {
   level: Level;
   found: number;
@@ -181,6 +183,7 @@ function HUD({
   onCloseOverlay?: () => void;
   showHint: boolean;
   newPin: string | null;
+  detectiveName?: string | null;
 }) {
   const canAccuse = found >= required;
 
@@ -217,6 +220,11 @@ function HUD({
 
         {/* Case label */}
         <div>
+          {detectiveName && (
+            <div className="font-detective text-xs tracking-[0.25em] uppercase mb-0.5" style={{ color: 'var(--success)', opacity: 0.8 }}>
+              Detective {detectiveName} is on the case
+            </div>
+          )}
           <div className="font-detective text-xs tracking-[0.25em] uppercase" style={{ color: 'var(--accent)', opacity: 0.7 }}>
             Case {String(level.id).padStart(2, '0')} — {level.title}
           </div>

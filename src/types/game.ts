@@ -1,5 +1,6 @@
 export type GameScreen =
   | 'title'
+  | 'detective-select'
   | 'case-select'
   | 'scene'
   | 'accusation'
@@ -65,4 +66,5 @@ export interface GameState {
   handbookUnlocked: string[];
   navigationStack: NavigationState[];
   savedProgress: Record<number, LevelProgress>;
+  selectedDetective: { id: string; name: string; accentColor: string } | null;
 }
