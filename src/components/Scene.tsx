@@ -10,9 +10,10 @@ interface Props {
   onOpenBoard: () => void;
   onOpenHandbook: () => void;
   onAccuse: () => void;
+  onBack: () => void;
 }
 
-export default function Scene({ level, discoveredClues, onClueDiscovered, onOpenBoard, onOpenHandbook, onAccuse }: Props) {
+export default function Scene({ level, discoveredClues, onClueDiscovered, onOpenBoard, onOpenHandbook, onAccuse, onBack }: Props) {
   const [activeClue, setActiveClue] = useState<Clue | null>(null);
   const [zoomed, setZoomed] = useState(false);
   const [showHint, setShowHint] = useState(true);
@@ -92,6 +93,7 @@ export default function Scene({ level, discoveredClues, onClueDiscovered, onOpen
         onOpenBoard={onOpenBoard}
         onOpenHandbook={onOpenHandbook}
         onAccuse={onAccuse}
+        onBack={onBack}
         showHint={showHint}
         newPin={newPin}
       />
@@ -165,7 +167,7 @@ function Hotspot({ clue, discovered, onClick }: { clue: Clue; discovered: boolea
 }
 
 function HUD({
-  level, found, required, onOpenBoard, onOpenHandbook, onAccuse, showHint, newPin,
+  level, found, required, onOpenBoard, onOpenHandbook, onAccuse, onBack, showHint, newPin,
 }: {
   level: Level;
   found: number;
@@ -173,6 +175,7 @@ function HUD({
   onOpenBoard: () => void;
   onOpenHandbook: () => void;
   onAccuse: () => void;
+  onBack: () => void;
   showHint: boolean;
   newPin: string | null;
 }) {
@@ -187,6 +190,21 @@ function HUD({
           background: 'linear-gradient(to bottom, rgba(10,8,6,0.9) 0%, transparent 100%)',
         }}
       >
+        {/* Back button */}
+        <button
+          onClick={onBack}
+          className="font-detective text-xs tracking-widest uppercase px-3 py-1.5 transition-all duration-200 mr-4"
+          style={{
+            border: '1px solid rgba(255,255,255,0.15)',
+            color: 'var(--text-muted)',
+            background: 'transparent',
+            letterSpacing: '0.1em',
+            fontSize: '0.6rem',
+          }}
+        >
+          ← Back
+        </button>
+
         {/* Case label */}
         <div>
           <div className="font-detective text-xs tracking-[0.25em] uppercase" style={{ color: 'var(--accent)', opacity: 0.7 }}>

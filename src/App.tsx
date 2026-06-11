@@ -90,6 +90,7 @@ export default function App() {
           onOpenBoard={() => setOverlay('board')}
           onOpenHandbook={() => setOverlay('handbook')}
           onAccuse={() => setScreen('accusation')}
+          onBack={() => setScreen('case-select')}
         />
         {overlay === 'board' && (
           <EvidenceBoard
@@ -114,6 +115,7 @@ export default function App() {
           onOpenBoard={() => setOverlay('board')}
           onOpenHandbook={() => setOverlay('handbook')}
           onAccuse={() => {}}
+          onBack={() => setScreen('scene')}
         />
         <AccusationScreen
           level={level}
