@@ -7,6 +7,7 @@ interface Props {
   totalClues?: number;
   onClose: () => void;
   onBack?: () => void;
+  interviewComplete?: boolean;
 }
 
 // Fixed positions for pins on the board
@@ -32,7 +33,7 @@ const CONNECTIONS = [
 const CARD_W = 140;
 const CARD_H = 100;
 
-export default function EvidenceBoard({ clues, discoveredIds, totalClues, onClose, onBack }: Props) {
+export default function EvidenceBoard({ clues, discoveredIds, totalClues, onClose, onBack, interviewComplete }: Props) {
   const [open, setOpen] = useState(false);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const svgRef = useRef<SVGSVGElement>(null);
@@ -122,6 +123,19 @@ export default function EvidenceBoard({ clues, discoveredIds, totalClues, onClos
               <span className="font-detective text-xs tracking-widest" style={{ color: 'var(--text-muted)', opacity: 0.5 }}>
                 {discovered.length} of {total} EVIDENCE ITEMS
               </span>
+              {interviewComplete && (
+                <span
+                  className="font-detective text-xs tracking-widest px-2 py-0.5"
+                  style={{
+                    color: 'var(--success)',
+                    border: '1px solid rgba(122,191,106,0.3)',
+                    background: 'rgba(122,191,106,0.08)',
+                    fontSize: '0.6rem',
+                  }}
+                >
+                  Thorough Briefing
+                </span>
+              )}
               <button
                 onClick={handleClose}
                 className="font-detective text-xs tracking-widest uppercase px-3 py-1 transition-all duration-200"

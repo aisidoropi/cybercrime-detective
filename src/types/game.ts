@@ -2,6 +2,7 @@ export type GameScreen =
   | 'title'
   | 'detective-select'
   | 'case-select'
+  | 'victim-interview'
   | 'scene'
   | 'accusation'
   | 'outcome';
@@ -29,16 +30,23 @@ export interface HandbookTerm {
   inThisCase: string;
 }
 
+export interface InterviewQuestion {
+  id: string;
+  question: string;
+  answer: string;
+}
+
 export interface Level {
   id: number;
   title: string;
   subtitle: string;
   victim: { name: string; age: number; description: string };
   briefing: string;
+  interviewQuestions?: InterviewQuestion[];
   clues: Clue[];
   bonusClues: Clue[];
-  accusationOptions: { id: string; label: string; description: string }[];
-  correctAnswer: string;
+  accusationOptions: { id: string; label: string; description: string; icon?: string }[];
+  correctAnswers: string[];
   handbookTerms: HandbookTerm[];
   successOutcome: string;
   failureOutcome: string;
@@ -54,6 +62,8 @@ export interface LevelProgress {
   discoveredClues: string[];
   accusationMade: boolean;
   accusationCorrect: boolean | null;
+  interviewComplete?: boolean;
+  askedQuestions?: string[];
 }
 
 export interface GameState {
@@ -67,4 +77,7 @@ export interface GameState {
   navigationStack: NavigationState[];
   savedProgress: Record<number, LevelProgress>;
   selectedDetective: { id: string; name: string; accentColor: string } | null;
+  interviewAskedQuestions: string[];
+  interviewComplete: boolean;
+  selectedAccusations: string[];
 }

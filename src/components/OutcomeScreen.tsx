@@ -5,13 +5,25 @@ interface Props {
   level: Level;
   correct: boolean;
   discoveredCount: number;
+  selectedAccusations: string[];
+  interviewComplete: boolean;
   onReplay: () => void;
   onTitle: () => void;
   onNewCase: () => void;
   onBack?: () => void;
 }
 
-export default function OutcomeScreen({ level, correct, discoveredCount, onReplay, onTitle, onNewCase, onBack }: Props) {
+export default function OutcomeScreen({
+  level,
+  correct,
+  discoveredCount,
+  selectedAccusations,
+  interviewComplete,
+  onReplay,
+  onTitle,
+  onNewCase,
+  onBack,
+}: Props) {
   const [phase, setPhase] = useState(0);
 
   useEffect(() => {
@@ -20,6 +32,11 @@ export default function OutcomeScreen({ level, correct, discoveredCount, onRepla
     const t3 = setTimeout(() => setPhase(3), 1600);
     return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
   }, []);
+
+  const correctAnswers = level.correctAnswers;
+  const gotRight = selectedAccusations.filter(a => correctAnswers.includes(a));
+  const gotWrong = selectedAccusations.filter(a => !correctAnswers.includes(a));
+  const missed = correctAnswers.filter(a => !selectedAccusations.includes(a));
 
   return (
     <div
@@ -33,7 +50,7 @@ export default function OutcomeScreen({ level, correct, discoveredCount, onRepla
       <div className="vignette" />
       <div className="noise-overlay" />
 
-      <div className="relative z-20 text-center max-w-2xl mx-auto px-6">
+      <div className="relative z-20 text-center max-w-3xl mx-auto px-6">
 
         {/* Back button */}
         {onBack && (
@@ -71,7 +88,7 @@ export default function OutcomeScreen({ level, correct, discoveredCount, onRepla
                 : '0 0 40px rgba(224,90,71,0.2), inset 0 0 20px rgba(224,90,71,0.05)',
             }}
           >
-            {correct ? '✓ Case Closed' : '✗ Incorrect Deduction'}
+            {correct ? 'Case Closed' : 'Incorrect Deduction'}
           </div>
         </div>
 
@@ -97,6 +114,84 @@ export default function OutcomeScreen({ level, correct, discoveredCount, onRepla
           </div>
         </div>
 
+        {/* Answer breakdown */}
+        <div
+          className="mb-8 transition-all duration-700"
+          style={{
+            opacity: phase >= 2 ? 1 : 0,
+            transform: phase >= 2 ? 'translateY(0)' : 'translateY(10px)',
+          }}
+        >
+          <div className="font-detective text-xs tracking-widest uppercase mb-4" style={{ color: 'var(--text-muted)', opacity: 0.7 }}>
+            Your Answer Analysis
+          </div>
+
+          <div className="flex flex-col gap-3 items-center">
+            {/* Correct picks */}
+            {gotRight.map((id) => {
+              const opt = level.accusationOptions.find(o => o.id === id);
+              return (
+                <div
+                  key={id}
+                  className="flex items-center gap-3 px-4 py-2"
+                  style={{
+                    background: 'rgba(122,191,106,0.08)',
+                    border: '1px solid rgba(122,191,106,0.3)',
+                    borderRadius: 4,
+                  }}
+                >
+                  <span style={{ color: 'var(--success)' }}>Correct</span>
+                  <span className="font-detective text-sm" style={{ color: 'var(--success)' }}>
+                    {opt?.label}
+                  </span>
+                </div>
+              );
+            })}
+
+            {/* Incorrect picks */}
+            {gotWrong.map((id) => {
+              const opt = level.accusationOptions.find(o => o.id === id);
+              return (
+                <div
+                  key={id}
+                  className="flex items-center gap-3 px-4 py-2"
+                  style={{
+                    background: 'rgba(224,90,71,0.08)',
+                    border: '1px solid rgba(224,90,71,0.3)',
+                    borderRadius: 4,
+                  }}
+                >
+                  <span style={{ color: 'var(--danger)' }}>Incorrect</span>
+                  <span className="font-detective text-sm" style={{ color: 'var(--danger)' }}>
+                    {opt?.label}
+                  </span>
+                </div>
+              );
+            })}
+
+            {/* Missed correct answers */}
+            {missed.map((id) => {
+              const opt = level.accusationOptions.find(o => o.id === id);
+              return (
+                <div
+                  key={id}
+                  className="flex items-center gap-3 px-4 py-2"
+                  style={{
+                    background: 'rgba(245,166,35,0.08)',
+                    border: '1px solid rgba(245,166,35,0.3)',
+                    borderRadius: 4,
+                  }}
+                >
+                  <span style={{ color: 'var(--accent)' }}>Missed</span>
+                  <span className="font-detective text-sm" style={{ color: 'var(--accent)' }}>
+                    {opt?.label}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
         {/* Stats row */}
         {correct && (
           <div
@@ -108,7 +203,27 @@ export default function OutcomeScreen({ level, correct, discoveredCount, onRepla
           >
             <Stat value={`${discoveredCount}`} label="Clues Found" />
             <Stat value={level.clues.length === discoveredCount ? 'Perfect' : 'Good'} label="Investigation" />
+            {interviewComplete && <Stat value="Yes" label="Thorough Briefing" />}
             <Stat value="01" label="Case Solved" />
+          </div>
+        )}
+
+        {/* Interview bonus note */}
+        {interviewComplete && correct && (
+          <div
+            className="mb-6 transition-all duration-700"
+            style={{ opacity: phase >= 2 ? 1 : 0 }}
+          >
+            <div
+              className="inline-block font-detective text-xs tracking-widest uppercase px-4 py-2"
+              style={{
+                color: 'var(--success)',
+                border: '1px solid rgba(122,191,106,0.3)',
+                background: 'rgba(122,191,106,0.05)',
+              }}
+            >
+              Thorough Briefing: You asked all the right questions before diving in.
+            </div>
           </div>
         )}
 
@@ -121,7 +236,7 @@ export default function OutcomeScreen({ level, correct, discoveredCount, onRepla
           }}
         >
           {!correct && (
-            <OutcomeButton onClick={onReplay} label="← Return to Scene" />
+            <OutcomeButton onClick={onReplay} label="Return to Scene" />
           )}
           {correct
             ? <OutcomeButton onClick={onNewCase} label="New Case" primary />
@@ -130,8 +245,8 @@ export default function OutcomeScreen({ level, correct, discoveredCount, onRepla
           <OutcomeButton onClick={onTitle} label="Main Menu" />
         </div>
 
-        {/* Correct answer reveal */}
-        {!correct && (
+        {/* Correct answer reveal - only if incorrect */}
+        {!correct && missed.length > 0 && (
           <div
             className="mt-8 transition-all duration-700"
             style={{
@@ -146,7 +261,9 @@ export default function OutcomeScreen({ level, correct, discoveredCount, onRepla
                 background: 'rgba(122,191,106,0.05)',
               }}
             >
-              Correct Answer: {level.accusationOptions.find(o => o.id === level.correctAnswer)?.label}
+              Correct Answer{missed.length > 1 ? 's' : ''}: {missed.map(id =>
+                level.accusationOptions.find(o => o.id === id)?.label
+              ).join(', ')}
             </div>
           </div>
         )}

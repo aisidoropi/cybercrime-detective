@@ -12,6 +12,28 @@ export const LEVELS: Level[] = [
     },
     briefing:
       'Early Tuesday morning. Hilde was eating breakfast when her phone buzzed. What seemed like a routine notification led her to hand over her bank details to a stranger. Investigate the kitchen. Find out how it happened.',
+    interviewQuestions: [
+      {
+        id: 'morning-routine',
+        question: 'Walk me through your morning — what do you usually do first thing?',
+        answer: "Oh, you know, the usual. I wake up around seven, put on the kettle. Sometimes I stop by the café downstairs — they know me there. I catch up on my messages while the tea steeps. My granddaughter sends me pictures of the garden. It's nice to see what she's up to before I start my day.",
+      },
+      {
+        id: 'password-habits',
+        question: 'How careful are you with your passwords?',
+        answer: "Passwords... I try, but it's so many of them, you know? I use the same one for most things — my email, the shopping sites, the bank app. It's just easier to remember that way. I wrote it down somewhere safe, I think. Or maybe I didn't. My memory isn't what it used to be.",
+      },
+      {
+        id: 'public-computers',
+        question: 'Do you ever use public computers?',
+        answer: "Sometimes, yes. The library has those computers anyone can use. I go there on Thursdays for the knitting circle. Sometimes I check my email there if my tablet is acting up. They said it's perfectly safe — they wipe them every night, the librarian told me.",
+      },
+      {
+        id: 'link-habits',
+        question: 'How do you usually handle links people send you?',
+        answer: "If it looks important, I click it. My grandson sends me articles, my friends send me birthday cards — those little animations. I don't really look at the address, I just... if it looks like it's from someone I know, I trust it. Is that wrong?",
+      },
+    ],
     clues: [
       {
         id: 'phone-notification',
@@ -134,27 +156,45 @@ export const LEVELS: Level[] = [
         label: 'SMS Phishing (Smishing)',
         description:
           'The attacker sent a fraudulent SMS impersonating DHL with a link to a fake payment portal, harvesting Hilde\'s card details.',
+        icon: '📱',
       },
       {
         id: 'vishing',
         label: 'Voice Call Scam (Vishing)',
         description:
           'Someone called Hilde pretending to be DHL support and verbally obtained her card details over the phone.',
+        icon: '📞',
       },
       {
         id: 'malware',
         label: 'Banking Malware',
         description:
           'Malware installed on her tablet intercepted her banking app and redirected her payment to attackers.',
+        icon: '🦠',
       },
       {
         id: 'data-breach',
         label: 'Dark Web Data Breach',
         description:
           'Hilde\'s card details were purchased from a previous data breach and used without any interaction from her.',
+        icon: '🕵️',
+      },
+      {
+        id: 'phishing',
+        label: 'Email Phishing',
+        description:
+          'A fraudulent email was sent to Hilde with a link to a fake website designed to steal her credentials.',
+        icon: '📧',
+      },
+      {
+        id: 'shoulder-surfing',
+        label: 'Shoulder Surfing',
+        description:
+          'Someone watched Hilde enter her password or PIN in a public place and copied it.',
+        icon: '👀',
       },
     ],
-    correctAnswer: 'smishing',
+    correctAnswers: ['smishing'],
     handbookTerms: [
       {
         term: 'Smishing',
@@ -335,27 +375,45 @@ export const LEVELS: Level[] = [
         label: 'Discord Phishing Link (Credential Theft)',
         description:
           'A compromised friend\'s account sent a fake "free upgrade" link. Luca entered his Discord credentials on a phishing page, handing the attacker full account access.',
+        icon: '🔗',
       },
       {
         id: 'malware-mod',
         label: 'Malware Hidden in a Game Mod',
         description:
           'Luca downloaded a Minecraft mod from an unofficial site that contained malware, which harvested his login credentials from memory.',
+        icon: '🦠',
       },
       {
         id: 'account-brute-force',
         label: 'Password Brute Force Attack',
         description:
           'An automated script tried thousands of password combinations until it found the correct one for Luca\'s Discord account.',
+        icon: '🔐',
       },
       {
         id: 'sim-swap',
         label: 'SIM Card Swap',
         description:
           'Attackers convinced Luca\'s mobile provider to transfer his phone number to their SIM, then used SMS codes to reset his Discord password.',
+        icon: '📱',
+      },
+      {
+        id: 'session-hijack',
+        label: 'Session Hijacking',
+        description:
+          'An attacker intercepted Luca\'s login session token over the network and used it to access his account without needing credentials.',
+        icon: '🎯',
+      },
+      {
+        id: 'social-engineering',
+        label: 'Social Engineering (Impersonation)',
+        description:
+          'An attacker posed as Discord support or a friend in voice chat and convinced Luca to share his login details.',
+        icon: '🎭',
       },
     ],
-    correctAnswer: 'phishing',
+    correctAnswers: ['phishing'],
     handbookTerms: [
       {
         term: 'Phishing',

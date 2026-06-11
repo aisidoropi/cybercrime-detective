@@ -3,6 +3,7 @@ import type { GameScreen, GameState, Clue, LevelProgress } from './types/game';
 import { LEVELS, getLevelById } from './data/levels';
 import TitleScreen from './components/TitleScreen';
 import DetectiveSelect from './components/DetectiveSelect';
+import VictimInterview from './components/VictimInterview';
 import Scene from './components/Scene';
 import EvidenceBoard from './components/EvidenceBoard';
 import Handbook from './components/Handbook';
@@ -21,6 +22,9 @@ const initialState = (): GameState => ({
   navigationStack: [],
   savedProgress: {},
   selectedDetective: null,
+  interviewAskedQuestions: [],
+  interviewComplete: false,
+  selectedAccusations: [],
 });
 
 export default function App() {
@@ -177,6 +181,57 @@ export default function App() {
     }));
   }, []);
 
+  // Start victim interview for a level
+  const startVictimInterview = useCallback((levelId: number) => {
+    setState((s) => ({
+      ...s,
+      screen: 'victim-interview',
+      currentLevel: levelId,
+      interviewAskedQuestions: [],
+      interviewComplete: false,
+      selectedAccusations: [],
+      navigationStack: [
+        ...s.navigationStack,
+        { screen: s.screen, levelId: s.currentLevel },
+      ],
+    }));
+    setOverlay(null);
+  }, []);
+
+  // Handle question asked in interview
+  const handleQuestionAsked = useCallback((questionId: string) => {
+    setState((s) => ({
+      ...s,
+      interviewAskedQuestions: [...s.interviewAskedQuestions, questionId],
+    }));
+  }, []);
+
+  // Begin investigation after interview
+  const beginInvestigation = useCallback(() => {
+    setState((s) => {
+      const level = getLevelById(s.currentLevel);
+      const allAsked = level?.interviewQuestions
+        ? level.interviewQuestions.every(q => s.interviewAskedQuestions.includes(q.id))
+        : true;
+
+      return {
+        ...s,
+        screen: 'scene',
+        interviewComplete: allAsked,
+        discoveredClues: [],
+        selectedClue: null,
+        accusationMade: false,
+        accusationCorrect: null,
+        selectedAccusations: [],
+        navigationStack: [
+          ...s.navigationStack,
+          { screen: s.screen, levelId: s.currentLevel },
+        ],
+      };
+    });
+    setOverlay(null);
+  }, []);
+
   const handleClueDiscovered = useCallback((clue: Clue) => {
     setState((s) => {
       if (s.discoveredClues.includes(clue.id)) return s;
@@ -184,10 +239,14 @@ export default function App() {
     });
   }, []);
 
-  const handleAccusation = useCallback((answerId: string) => {
+  const handleAccusation = useCallback((answerIds: string[]) => {
     const level = getLevelById(state.currentLevel);
     if (!level) return;
-    const correct = answerId === level.correctAnswer;
+
+    const correctAnswers = level.correctAnswers;
+    const allCorrect = correctAnswers.every(a => answerIds.includes(a)) &&
+                        answerIds.every(a => correctAnswers.includes(a));
+    const partiallyCorrect = answerIds.some(a => correctAnswers.includes(a));
 
     setState((s) => {
       // Clear saved progress after accusation
@@ -198,7 +257,8 @@ export default function App() {
         ...s,
         screen: 'outcome',
         accusationMade: true,
-        accusationCorrect: correct,
+        accusationCorrect: allCorrect,
+        selectedAccusations: answerIds,
         savedProgress: newSavedProgress,
       };
     });
@@ -234,10 +294,44 @@ export default function App() {
 
       <ScreenLayer active={state.screen === 'case-select'}>
         <CaseSelect
-          onSelect={(id) => startLevel(id)}
+          onSelect={(id) => {
+            const level = getLevelById(id);
+            if (level?.interviewQuestions && level.interviewQuestions.length > 0) {
+              startVictimInterview(id);
+            } else {
+              startLevel(id);
+            }
+          }}
           onResume={(id, progress) => startLevel(id, progress)}
           onBack={canGoBack ? goBack : undefined}
           savedProgress={state.savedProgress}
+        />
+      </ScreenLayer>
+
+      <ScreenLayer active={state.screen === 'victim-interview'}>
+        <VictimInterview
+          level={level}
+          askedQuestions={state.interviewAskedQuestions}
+          onQuestionAsked={handleQuestionAsked}
+          onBeginInvestigation={beginInvestigation}
+          onSkip={() => {
+            setState((s) => ({
+              ...s,
+              screen: 'scene',
+              interviewComplete: false,
+              discoveredClues: [],
+              selectedClue: null,
+              accusationMade: false,
+              accusationCorrect: null,
+              selectedAccusations: [],
+              navigationStack: [
+                ...s.navigationStack,
+                { screen: s.screen, levelId: s.currentLevel },
+              ],
+            }));
+            setOverlay(null);
+          }}
+          onBack={canGoBack ? goBack : undefined}
         />
       </ScreenLayer>
 
@@ -260,6 +354,7 @@ export default function App() {
             totalClues={level.clues.length + level.bonusClues.length}
             onClose={() => setOverlay(null)}
             onBack={canGoBack ? goBack : undefined}
+            interviewComplete={state.interviewComplete}
           />
         )}
         {overlay === 'handbook' && (
@@ -290,6 +385,7 @@ export default function App() {
             totalClues={level.clues.length + level.bonusClues.length}
             onClose={() => setOverlay(null)}
             onBack={canGoBack ? goBack : undefined}
+            interviewComplete={state.interviewComplete}
           />
         )}
         {overlay === 'handbook' && (
@@ -312,10 +408,17 @@ export default function App() {
           level={level}
           correct={state.accusationCorrect ?? false}
           discoveredCount={state.discoveredClues.length}
+          selectedAccusations={state.selectedAccusations}
+          interviewComplete={state.interviewComplete}
           onReplay={() => {
             // Clear progress and restart
             clearProgress(state.currentLevel);
-            startLevel(state.currentLevel);
+            const level = getLevelById(state.currentLevel);
+            if (level?.interviewQuestions && level.interviewQuestions.length > 0) {
+              startVictimInterview(state.currentLevel);
+            } else {
+              startLevel(state.currentLevel);
+            }
           }}
           onTitle={() => {
             setState((s) => ({
