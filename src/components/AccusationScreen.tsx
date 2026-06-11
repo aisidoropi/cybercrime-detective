@@ -5,9 +5,10 @@ interface Props {
   level: Level;
   onSubmit: (answerId: string) => void;
   onCancel: () => void;
+  onBack?: () => void;
 }
 
-export default function AccusationScreen({ level, onSubmit, onCancel }: Props) {
+export default function AccusationScreen({ level, onSubmit, onCancel, onBack }: Props) {
   const [open, setOpen] = useState(false);
   const [selected, setSelected] = useState<string | null>(null);
   const [confirming, setConfirming] = useState(false);
@@ -23,6 +24,14 @@ export default function AccusationScreen({ level, onSubmit, onCancel }: Props) {
   const handleCancel = () => {
     setOpen(false);
     setTimeout(onCancel, 500);
+  };
+
+  const handleBack = () => {
+    setOpen(false);
+    setTimeout(() => {
+      if (onBack) onBack();
+      else onCancel();
+    }, 500);
   };
 
   return (
@@ -126,19 +135,35 @@ export default function AccusationScreen({ level, onSubmit, onCancel }: Props) {
         </div>
 
         {/* Actions */}
-        <div className="flex gap-3 justify-between">
-          <button
-            onClick={handleCancel}
-            className="font-detective text-xs tracking-widest uppercase px-6 py-3 transition-all duration-200"
-            style={{
-              border: '1px solid rgba(255,255,255,0.1)',
-              color: 'var(--text-muted)',
-              background: 'transparent',
-              letterSpacing: '0.15em',
-            }}
-          >
-            ← Return to Scene
-          </button>
+        <div className="flex gap-3 justify-between items-center">
+          <div className="flex gap-3">
+            {onBack && (
+              <button
+                onClick={handleBack}
+                className="font-detective text-xs tracking-widest uppercase px-4 py-3 transition-all duration-200"
+                style={{
+                  border: '1px solid rgba(255,255,255,0.15)',
+                  color: 'var(--text-muted)',
+                  background: 'transparent',
+                  letterSpacing: '0.15em',
+                }}
+              >
+                ← Back
+              </button>
+            )}
+            <button
+              onClick={handleCancel}
+              className="font-detective text-xs tracking-widest uppercase px-6 py-3 transition-all duration-200"
+              style={{
+                border: '1px solid rgba(255,255,255,0.1)',
+                color: 'var(--text-muted)',
+                background: 'transparent',
+                letterSpacing: '0.15em',
+              }}
+            >
+              Return to Scene
+            </button>
+          </div>
 
           <button
             onClick={handleSubmit}
@@ -154,7 +179,7 @@ export default function AccusationScreen({ level, onSubmit, onCancel }: Props) {
               opacity: confirming ? 0.6 : 1,
             }}
           >
-            {confirming ? 'Filing Report...' : 'Submit Accusation ⚖'}
+            {confirming ? 'Filing Report...' : 'Submit Accusation'}
           </button>
         </div>
       </div>

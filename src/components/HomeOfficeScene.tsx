@@ -207,7 +207,7 @@ export default function HomeOfficeScene() {
         {y:168, books:[{w:10,h:48,c:'#2A1830'},{w:8,h:42,c:'#182020'},{w:12,h:50,c:'#304810'},{w:7,h:44,c:'#3A2808'},{w:9,h:46,c:'#101838'}]},
         {y:258, books:[{w:8,h:48,c:'#381818'},{w:11,h:52,c:'#183828'},{w:7,h:44,c:'#1A1A38'},{w:9,h:50,c:'#38280A'},{w:6,h:42,c:'#281838'}]},
         {y:348, books:[{w:9,h:46,c:'#102838'},{w:8,h:44,c:'#281008'},{w:11,h:50,c:'#103828'},{w:7,h:42,c:'#2A2008'},{w:10,h:48,c:'#181028'}]},
-      ].map((shelf, si) => {
+      ].map((shelf) => {
         let xpos = 2;
         return shelf.books.map((b, bi) => {
           const el = <rect key={bi} x={xpos} y={shelf.y} width={b.w} height={b.h} rx="1" fill={b.c} />;
@@ -536,7 +536,7 @@ export default function HomeOfficeScene() {
         {y:76, colors:['#2A1830','#1E3040','#3A2010','#102838','#281020','#1A3820','#302010']},
         {y:176, colors:['#182830','#302010','#1A2840','#283010','#201838','#3A1820','#102A30']},
         {y:276, colors:['#1A2030','#2A3010','#181838','#3A1A10','#102030','#2A2830','#201028']},
-      ].map((shelf, si) => {
+      ].map((shelf) => {
         const widths = [22, 18, 26, 20, 16, 24, 20];
         const heights = [42, 36, 46, 40, 32, 44, 38];
         let xpos = 1249;

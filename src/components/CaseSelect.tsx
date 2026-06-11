@@ -1,12 +1,15 @@
 import { useState } from 'react';
 import { LEVELS } from '../data/levels';
+import type { LevelProgress } from '../types/game';
 
 interface Props {
   onSelect: (levelId: number) => void;
-  onBack: () => void;
+  onResume: (levelId: number, progress: LevelProgress) => void;
+  onBack?: () => void;
+  savedProgress: Record<number, LevelProgress>;
 }
 
-export default function CaseSelect({ onSelect, onBack }: Props) {
+export default function CaseSelect({ onSelect, onResume, onBack, savedProgress }: Props) {
   const [hovered, setHovered] = useState<number | null>(null);
 
   const futureCases = [
@@ -43,54 +46,123 @@ export default function CaseSelect({ onSelect, onBack }: Props) {
           </p>
         </div>
 
-        {/* Cases grid */}
-        <div className="space-y-4 mb-8">
-          {/* Available case */}
-          {LEVELS.map((level) => (
+        {/* Back button */}
+        {onBack && (
+          <div className="mb-6">
             <button
-              key={level.id}
-              onClick={() => onSelect(level.id)}
-              onMouseEnter={() => setHovered(level.id)}
-              onMouseLeave={() => setHovered(null)}
-              className="w-full text-left px-6 py-5 transition-all duration-300"
+              onClick={onBack}
+              className="font-detective text-xs tracking-widest uppercase px-4 py-2 transition-all duration-200"
               style={{
-                background: hovered === level.id ? 'rgba(245,166,35,0.08)' : 'rgba(255,255,255,0.02)',
-                border: hovered === level.id ? '1px solid rgba(245,166,35,0.6)' : '1px solid rgba(245,166,35,0.15)',
-                boxShadow: hovered === level.id ? '0 0 30px rgba(245,166,35,0.1)' : 'none',
+                border: '1px solid rgba(255,255,255,0.15)',
+                color: 'var(--text-muted)',
+                background: 'transparent',
+                letterSpacing: '0.15em',
               }}
             >
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="flex items-center gap-3 mb-2">
-                    <span
-                      className="font-detective text-xs tracking-widest uppercase px-2 py-0.5"
-                      style={{ background: 'rgba(122,191,106,0.15)', color: 'var(--success)', border: '1px solid rgba(122,191,106,0.3)', fontSize: '0.6rem' }}
-                    >
-                      Open
-                    </span>
-                    <span className="font-detective text-xs" style={{ color: 'var(--text-muted)', opacity: 0.5 }}>
-                      Case {String(level.id).padStart(2, '0')}
-                    </span>
+              ← Back
+            </button>
+          </div>
+        )}
+
+        {/* Cases grid */}
+        <div className="space-y-4 mb-8">
+          {/* Available cases */}
+          {LEVELS.map((level) => {
+            const progress = savedProgress[level.id];
+            const hasProgress = progress && progress.discoveredClues.length > 0;
+            const totalClues = level.clues.length + level.bonusClues.length;
+
+            return (
+              <div
+                key={level.id}
+                className="relative w-full text-left px-6 py-5 transition-all duration-300"
+                style={{
+                  background: hovered === level.id ? 'rgba(245,166,35,0.08)' : 'rgba(255,255,255,0.02)',
+                  border: hovered === level.id ? '1px solid rgba(245,166,35,0.6)' : '1px solid rgba(245,166,35,0.15)',
+                  boxShadow: hovered === level.id ? '0 0 30px rgba(245,166,35,0.1)' : 'none',
+                }}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-3 mb-2">
+                      <span
+                        className="font-detective text-xs tracking-widest uppercase px-2 py-0.5"
+                        style={{ background: 'rgba(122,191,106,0.15)', color: 'var(--success)', border: '1px solid rgba(122,191,106,0.3)', fontSize: '0.6rem' }}
+                      >
+                        Open
+                      </span>
+                      <span className="font-detective text-xs" style={{ color: 'var(--text-muted)', opacity: 0.5 }}>
+                        Case {String(level.id).padStart(2, '0')}
+                      </span>
+                    </div>
+                    <h3 className="font-detective text-xl mb-1" style={{ color: 'var(--text-primary)' }}>
+                      {level.title}
+                    </h3>
+                    <p className="font-serif italic text-sm" style={{ color: 'var(--text-muted)', opacity: 0.7 }}>
+                      {level.subtitle}
+                    </p>
+                    <div className="mt-3 font-detective text-xs" style={{ color: 'var(--text-muted)', opacity: 0.4 }}>
+                      Victim: {level.victim.name}, {level.victim.age} — {totalClues} evidence items
+                    </div>
+
+                    {/* Progress indicator */}
+                    {hasProgress && (
+                      <div className="mt-2 font-detective text-xs flex items-center gap-2" style={{ color: 'var(--accent)' }}>
+                        <span style={{ color: 'var(--success)' }}>●</span>
+                        <span>In Progress: {progress.discoveredClues.length}/{totalClues} evidence items found</span>
+                      </div>
+                    )}
                   </div>
-                  <h3 className="font-detective text-xl mb-1" style={{ color: 'var(--text-primary)' }}>
-                    {level.title}
-                  </h3>
-                  <p className="font-serif italic text-sm" style={{ color: 'var(--text-muted)', opacity: 0.7 }}>
-                    {level.subtitle}
-                  </p>
-                  <div className="mt-3 font-detective text-xs" style={{ color: 'var(--text-muted)', opacity: 0.4 }}>
-                    Victim: {level.victim.name}, {level.victim.age} — {level.clues.length + level.bonusClues.length} evidence items
+
+                  {/* Action buttons */}
+                  <div className="flex items-center gap-3">
+                    {hasProgress ? (
+                      <>
+                        <button
+                          onClick={() => onResume(level.id, progress)}
+                          onMouseEnter={() => setHovered(level.id)}
+                          onMouseLeave={() => setHovered(null)}
+                          className="font-detective text-xs tracking-widest uppercase px-4 py-2 transition-all duration-200"
+                          style={{
+                            border: '1px solid rgba(122,191,106,0.5)',
+                            color: 'var(--success)',
+                            background: 'rgba(122,191,106,0.1)',
+                            letterSpacing: '0.1em',
+                          }}
+                        >
+                          Resume
+                        </button>
+                        <button
+                          onClick={() => onSelect(level.id)}
+                          onMouseEnter={() => setHovered(level.id)}
+                          onMouseLeave={() => setHovered(null)}
+                          className="font-detective text-xs tracking-widest uppercase px-4 py-2 transition-all duration-200"
+                          style={{
+                            border: '1px solid rgba(245,166,35,0.3)',
+                            color: 'var(--text-muted)',
+                            background: 'transparent',
+                            letterSpacing: '0.1em',
+                          }}
+                        >
+                          New Game
+                        </button>
+                      </>
+                    ) : (
+                      <button
+                        onClick={() => onSelect(level.id)}
+                        onMouseEnter={() => setHovered(level.id)}
+                        onMouseLeave={() => setHovered(null)}
+                        className="text-2xl transition-transform duration-300"
+                        style={{ transform: hovered === level.id ? 'translateX(6px)' : 'translateX(0)', color: 'var(--accent)', opacity: 0.6 }}
+                      >
+                        →
+                      </button>
+                    )}
                   </div>
-                </div>
-                <div
-                  className="text-2xl transition-transform duration-300"
-                  style={{ transform: hovered === level.id ? 'translateX(6px)' : 'translateX(0)', color: 'var(--accent)', opacity: 0.6 }}
-                >
-                  →
                 </div>
               </div>
-            </button>
-          ))}
+            );
+          })}
 
           {/* Future / locked cases */}
           {futureCases.map((c) => (
@@ -130,21 +202,23 @@ export default function CaseSelect({ onSelect, onBack }: Props) {
           ))}
         </div>
 
-        {/* Back button */}
-        <div className="text-center">
-          <button
-            onClick={onBack}
-            className="font-detective text-xs tracking-widest uppercase px-6 py-2 transition-all duration-200"
-            style={{
-              border: '1px solid rgba(255,255,255,0.1)',
-              color: 'var(--text-muted)',
-              background: 'transparent',
-              letterSpacing: '0.15em',
-            }}
-          >
-            ← Back to Main Menu
-          </button>
-        </div>
+        {/* Bottom back button */}
+        {onBack && (
+          <div className="text-center">
+            <button
+              onClick={onBack}
+              className="font-detective text-xs tracking-widest uppercase px-6 py-2 transition-all duration-200"
+              style={{
+                border: '1px solid rgba(255,255,255,0.1)',
+                color: 'var(--text-muted)',
+                background: 'transparent',
+                letterSpacing: '0.15em',
+              }}
+            >
+              ← Back to Main Menu
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -4,7 +4,9 @@ import type { Clue } from '../types/game';
 interface Props {
   clues: Clue[];
   discoveredIds: string[];
+  totalClues?: number;
   onClose: () => void;
+  onBack?: () => void;
 }
 
 // Fixed positions for pins on the board
@@ -30,7 +32,7 @@ const CONNECTIONS = [
 const CARD_W = 140;
 const CARD_H = 100;
 
-export default function EvidenceBoard({ clues, discoveredIds, onClose }: Props) {
+export default function EvidenceBoard({ clues, discoveredIds, totalClues, onClose, onBack }: Props) {
   const [open, setOpen] = useState(false);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const svgRef = useRef<SVGSVGElement>(null);
@@ -38,10 +40,19 @@ export default function EvidenceBoard({ clues, discoveredIds, onClose }: Props) 
   useEffect(() => { setTimeout(() => setOpen(true), 60); }, []);
 
   const discovered = clues.filter((c) => discoveredIds.includes(c.id));
+  const total = totalClues ?? clues.length;
 
   const handleClose = () => {
     setOpen(false);
     setTimeout(onClose, 500);
+  };
+
+  const handleBack = () => {
+    setOpen(false);
+    setTimeout(() => {
+      if (onBack) onBack();
+      else onClose();
+    }, 500);
   };
 
   // Compute string endpoints from card center+pin position
@@ -84,17 +95,32 @@ export default function EvidenceBoard({ clues, discoveredIds, onClose }: Props) 
             className="absolute top-0 left-0 right-0 flex items-center justify-between px-6 py-3 z-20"
             style={{ background: 'rgba(30,14,4,0.7)', borderBottom: '1px solid rgba(255,200,100,0.15)' }}
           >
-            <div>
-              <span className="font-detective text-xs tracking-[0.3em] uppercase" style={{ color: 'var(--accent)', opacity: 0.8 }}>
-                Investigation Board
-              </span>
-              <span className="font-detective text-xs ml-4" style={{ color: 'var(--text-muted)', opacity: 0.5 }}>
-                Case 01 — The Morning Message
-              </span>
+            <div className="flex items-center gap-4">
+              {onBack && (
+                <button
+                  onClick={handleBack}
+                  className="font-detective text-xs tracking-widest uppercase px-3 py-1 transition-all duration-200"
+                  style={{
+                    border: '1px solid rgba(255,255,255,0.15)',
+                    color: 'var(--text-muted)',
+                    background: 'transparent',
+                  }}
+                >
+                  ← Back
+                </button>
+              )}
+              <div>
+                <span className="font-detective text-xs tracking-[0.3em] uppercase" style={{ color: 'var(--accent)', opacity: 0.8 }}>
+                  Investigation Board
+                </span>
+                <span className="font-detective text-xs ml-4" style={{ color: 'var(--text-muted)', opacity: 0.5 }}>
+                  Case 01 — The Morning Message
+                </span>
+              </div>
             </div>
             <div className="flex items-center gap-4">
               <span className="font-detective text-xs tracking-widest" style={{ color: 'var(--text-muted)', opacity: 0.5 }}>
-                {discovered.length} of {clues.length} EVIDENCE ITEMS
+                {discovered.length} of {total} EVIDENCE ITEMS
               </span>
               <button
                 onClick={handleClose}
@@ -105,7 +131,7 @@ export default function EvidenceBoard({ clues, discoveredIds, onClose }: Props) 
                   background: 'transparent',
                 }}
               >
-                Close ✕
+                Close
               </button>
             </div>
           </div>

@@ -260,7 +260,7 @@ export default function GamingRoomScene() {
       {/* Category */}
       <rect x="790" y="132" width="48" height="4" rx="1" fill="#72768A" fillOpacity="0.6" clipPath="url(#gr_rightMon)"/>
       {/* Channel items */}
-      {['#general','#gaming','#links','#off-topic'].map((ch,i)=>(
+      {['#general','#gaming','#links','#off-topic'].map((_,i)=>(
         <g key={i} clipPath="url(#gr_rightMon)">
           <rect x="786" y={140+i*22} width="86" height="18" rx="2"
             fill={i===1?'#3A3D56':i===2?'#3A3D56':'transparent'} fillOpacity="0.7"/>

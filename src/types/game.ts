@@ -2,8 +2,6 @@ export type GameScreen =
   | 'title'
   | 'case-select'
   | 'scene'
-  | 'evidence-board'
-  | 'handbook'
   | 'accusation'
   | 'outcome';
 
@@ -45,6 +43,18 @@ export interface Level {
   failureOutcome: string;
 }
 
+export interface NavigationState {
+  screen: GameScreen;
+  levelId?: number;
+}
+
+export interface LevelProgress {
+  levelId: number;
+  discoveredClues: string[];
+  accusationMade: boolean;
+  accusationCorrect: boolean | null;
+}
+
 export interface GameState {
   screen: GameScreen;
   currentLevel: number;
@@ -53,4 +63,6 @@ export interface GameState {
   accusationMade: boolean;
   accusationCorrect: boolean | null;
   handbookUnlocked: string[];
+  navigationStack: NavigationState[];
+  savedProgress: Record<number, LevelProgress>;
 }

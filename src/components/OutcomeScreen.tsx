@@ -8,9 +8,10 @@ interface Props {
   onReplay: () => void;
   onTitle: () => void;
   onNewCase: () => void;
+  onBack?: () => void;
 }
 
-export default function OutcomeScreen({ level, correct, discoveredCount, onReplay, onTitle, onNewCase }: Props) {
+export default function OutcomeScreen({ level, correct, discoveredCount, onReplay, onTitle, onNewCase, onBack }: Props) {
   const [phase, setPhase] = useState(0);
 
   useEffect(() => {
@@ -33,6 +34,24 @@ export default function OutcomeScreen({ level, correct, discoveredCount, onRepla
       <div className="noise-overlay" />
 
       <div className="relative z-20 text-center max-w-2xl mx-auto px-6">
+
+        {/* Back button */}
+        {onBack && (
+          <div className="absolute top-6 left-6">
+            <button
+              onClick={onBack}
+              className="font-detective text-xs tracking-widest uppercase px-4 py-2 transition-all duration-200"
+              style={{
+                border: '1px solid rgba(255,255,255,0.15)',
+                color: 'var(--text-muted)',
+                background: 'transparent',
+                letterSpacing: '0.15em',
+              }}
+            >
+              ← Back
+            </button>
+          </div>
+        )}
 
         {/* Status stamp */}
         <div

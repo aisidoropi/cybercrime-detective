@@ -4,9 +4,10 @@ interface Props {
   onNewGame: () => void;
   onCaseSelect: () => void;
   onHandbook: () => void;
+  onBack?: () => void;
 }
 
-export default function TitleScreen({ onNewGame, onCaseSelect, onHandbook }: Props) {
+export default function TitleScreen({ onNewGame, onCaseSelect, onHandbook, onBack }: Props) {
   const [phase, setPhase] = useState(0);
 
   useEffect(() => {
@@ -37,6 +38,27 @@ export default function TitleScreen({ onNewGame, onCaseSelect, onHandbook }: Pro
 
       {/* Content */}
       <div className="relative z-20 flex flex-col items-center justify-center h-full">
+
+        {/* Back button */}
+        {onBack && (
+          <div
+            className="absolute top-6 left-6 transition-all duration-700"
+            style={{ opacity: phase >= 1 ? 1 : 0 }}
+          >
+            <button
+              onClick={onBack}
+              className="font-detective text-xs tracking-widest uppercase px-4 py-2 transition-all duration-200"
+              style={{
+                border: '1px solid rgba(255,255,255,0.15)',
+                color: 'var(--text-muted)',
+                background: 'transparent',
+                letterSpacing: '0.15em',
+              }}
+            >
+              ← Back
+            </button>
+          </div>
+        )}
 
         {/* Case badge */}
         <div

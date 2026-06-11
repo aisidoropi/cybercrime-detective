@@ -4,9 +4,10 @@ import type { HandbookTerm } from '../types/game';
 interface Props {
   terms: HandbookTerm[];
   onClose: () => void;
+  onBack?: () => void;
 }
 
-export default function Handbook({ terms, onClose }: Props) {
+export default function Handbook({ terms, onClose, onBack }: Props) {
   const [open, setOpen] = useState(false);
   const [selectedTerm, setSelectedTerm] = useState(0);
   const [pageFlipping, setPageFlipping] = useState(false);
@@ -16,6 +17,14 @@ export default function Handbook({ terms, onClose }: Props) {
   const handleClose = () => {
     setOpen(false);
     setTimeout(onClose, 600);
+  };
+
+  const handleBack = () => {
+    setOpen(false);
+    setTimeout(() => {
+      if (onBack) onBack();
+      else onClose();
+    }, 600);
   };
 
   const selectTerm = (i: number) => {
@@ -287,7 +296,21 @@ export default function Handbook({ terms, onClose }: Props) {
         </div>
 
         {/* Close button below notebook */}
-        <div className="flex justify-center mt-4">
+        <div className="flex justify-center gap-4 mt-4">
+          {onBack && (
+            <button
+              onClick={handleBack}
+              className="font-detective text-xs tracking-widest uppercase px-6 py-2 transition-all duration-200"
+              style={{
+                border: '1px solid rgba(255,255,255,0.15)',
+                color: 'var(--text-muted)',
+                background: 'transparent',
+                letterSpacing: '0.2em',
+              }}
+            >
+              ← Back
+            </button>
+          )}
           <button
             onClick={handleClose}
             className="font-detective text-xs tracking-widest uppercase px-6 py-2 transition-all duration-200"
